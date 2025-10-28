@@ -1,0 +1,13 @@
+{
+  "running": false,
+  "equity": 10001.3,
+  "pnl_total": 1.3,
+  "pnl_day": 1.3,
+  "max_drawdown": 0.5,
+  "sharpe": 0.6516311192522112,
+  "win_rate": 0.6666666666666666,
+  "trades_count": 3,
+  "episode": 1,
+  "avg_reward": 0.43333333333333335,
+  "timestamp": "2025-10-23T14:07:49.378138"
+}

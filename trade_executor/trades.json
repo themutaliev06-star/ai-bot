@@ -1,0 +1,20 @@
+[
+  {
+    "id": "0x1",
+    "ts": "2025-10-23T14:07:45.858726",
+    "symbol": "BTCUSDT",
+    "side": "buy",
+    "qty": 0.1,
+    "price": 10000.0,
+    "mode": "paper"
+  },
+  {
+    "id": "0x2",
+    "ts": "2025-10-23T14:07:45.859312",
+    "symbol": "ETHUSDT",
+    "side": "sell",
+    "qty": 0.2,
+    "price": 2000.0,
+    "mode": "paper"
+  }
+]

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NewBot – Современный интерфейс</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --panel: #161b22;
+  --card: #1e2733;
+  --accent: #3b82f6;
+  --text: #e2e8f0;
+  --muted: #6b7280;
+  --border: #334155;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 system-ui, sans-serif}
+nav{
+  display:flex;justify-content:space-between;align-items:center;padding:12px 20px;
+  background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;
+}
+nav .logo{font-size:18px;font-weight:600}
+nav .menu a{margin-right:16px;color:var(--text);text-decoration:none;font-size:14px}
+nav .menu a:hover{color:var(--accent)}
+nav .controls{display:flex;align-items:center;gap:12px}
+.risk-meter{width:140px;height:8px;border-radius:4px;background:#334155;position:relative}
+.risk-meter .fill{position:absolute;top:0;left:0;height:100%;width:40%;background:linear-gradient(to right,#16a34a,#eab308,#dc2626)}
+.risk-meter small{position:absolute;top:-20px;left:0;font-size:10px;color:var(--muted)}
+main{max-width:1280px;margin:0 auto;padding:20px}
+section{margin-bottom:32px}
+section h2{margin-bottom:12px;font-size:18px;color:var(--accent)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px;box-shadow:0 2px 4px rgba(0,0,0,0.2)}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:10px}
+.label{flex:0 0 auto;color:var(--muted);font-size:13px}
+.input{flex:1 1 auto;padding:6px 8px;border:1px solid var(--border);border-radius:4px;background:var(--panel);color:var(--text)}
+.input:focus{outline:none;border-color:var(--accent)}
+.btn{padding:6px 12px;background:var(--accent);color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px}
+.btn:hover{opacity:.85}
+table{width:100%;border-collapse:collapse;font-size:13px}
+table th,table td{padding:6px 8px;border-bottom:1px solid var(--border);text-align:left}
+table th{color:var(--muted)}
+pre{background:var(--panel);padding:8px;border-radius:4px;overflow:auto;font-size:12px}
+small{color:var(--muted);font-size:11px}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">NewBot</div>
+  <div class="menu">
+    <a href="#dashboard">Дашборд</a>
+    <a href="#radar">Радар</a>
+    <a href="#trades">Сделки</a>
+    <a href="#positions">Позиции</a>
+    <a href="#backtest">Бэктест</a>
+    <a href="#train">Обучение</a>
+    <a href="#settings">Настройки</a>
+    <a href="#help">Справка</a>
+  </div>
+  <div class="controls">
+    <div class="risk-meter"><small>риск (день)</small><div class="fill"></div></div>
+    <button class="btn" id="theme-toggle">Тёмная</button>
+  </div>
+</nav>
+<main>
+  <section id="dashboard">
+    <h2>Дашборд</h2>
+    <div class="card">
+      <div class="row">
+        <span class="label">Капитал:</span><span id="equity_val">–</span>
+        <span class="label">PNL (Всего):</span><span id="pnl_total_val">–</span>
+        <span class="label">PNL (День):</span><span id="pnl_day_val">–</span>
+      </div>
+      <div class="row">
+        <span class="label">Шарп:</span><span id="sharpe_val">–</span>
+        <span class="label">Макс&nbsp;просадка:</span><span id="dd_val">–</span>
+        <span class="label">Win&nbsp;Rate:</span><span id="win_rate_val">–</span>
+      </div>
+    </div>
+  </section>
+  <section id="radar">
+    <h2>Радар рынка</h2>
+    <div class="card">
+      <div class="row">
+        <span class="label">Порог (0.005 = 0.5%):</span>
+        <input class="input" id="radar_threshold" value="0.005" style="width:100px">
+        <button class="btn" id="radar_scan">Сканировать</button>
+      </div>
+      <table>
+        <thead><tr><th>Символ</th><th>Цена</th><th>Изменение</th></tr></thead>
+        <tbody id="radar_results"><tr><td colspan="3" style="text-align:center;color:var(--muted)">Нет данных</td></tr></tbody>
+      </table>
+    </div>
+    <small>Радар сканирует все выбранные пары на биржах Binance и Bybit и показывает активы, у которых изменение цены превышает заданный порог.</small>
+  </section>
+  <section id="trades">
+    <h2>Сделки</h2>
+    <div class="card">
+      <div class="row">
+        <span class="label">Лимит записей:</span>
+        <input class="input" id="trades_limit" value="50" style="width:100px">
+        <span class="label">Источник:</span>
+        <select class="input" id="trades_source" style="width:120px">
+          <option value="executor">исполнитель</option>
+          <option value="backtester">бэктест</option>
+        </select>
+        <button class="btn" id="trades_refresh">Обновить</button>
+      </div>
+      <table>
+        <thead><tr><th>№</th><th>Время</th><th>Символ</th><th>Сторона</th><th>Кол-во</th><th>Цена</th><th>Режим</th></tr></thead>
+        <tbody id="trades_table"><tr><td colspan="7" style="text-align:center;color:var(--muted)">Нет данных</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+  <section id="positions">
+    <h2>Позиции</h2>
+    <div class="card">
+      <button class="btn" id="positions_refresh">Обновить позиции</button>
+      <table>
+        <thead><tr><th>Символ</th><th>Кол-во</th><th>Средняя цена</th><th>Текущая цена</th><th>Нереализованный PnL</th></tr></thead>
+        <tbody id="positions_table"><tr><td colspan="5" style="text-align:center;color:var(--muted)">Нет позиций</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+  <section id="backtest">
+    <h2>Бэктест</h2>
+    <div class="card">
+      <div class="row">
+        <span class="label">Доходности:</span>
+        <input class="input" id="bt_returns" placeholder="например: 0.5 -0.3 0.2" style="flex:1">
+        <span class="label">Символ:</span>
+        <input class="input" id="bt_symbol" value="BTCUSDT" style="width:120px">
+        <button class="btn" id="bt_run">Запустить</button>
+      </div>
+      <pre id="bt_output">{}</pre>
+    </div>
+    <small>Введите последовательность доходностей (через пробел или запятую) и символ, по которому проводить бэктест. Результаты покажут совокупный PnL, Sharpe и другие метрики.</small>
+  </section>
+  <section id="train">
+    <h2>Обучение ИИ</h2>
+    <div class="card">
+      <div class="row">
+        <span class="label">Данные для обучения:</span>
+        <textarea class="input" id="train_returns" placeholder="Введите список доходностей через пробел, запятую или перевод строки" style="flex:1;height:80px"></textarea>
+      </div>
+      <div class="row">
+        <span class="label">Файл (.csv/.txt):</span>
+        <input type="file" id="train_file" class="input">
+        <button class="btn" id="train_run">Обучить</button>
+      </div>
+      <pre id="train_output">{}</pre>
+    </div>
+    <small>Система будет обновлять параметры ИИ на основе введённых доходностей и показывать новые метрики. В режиме тестирования ИИ обучается, но не отправляет сделки на биржу.</small>
+  </section>
+  <section id="settings">
+    <h2>Настройки</h2>
+    <div class="card">
+      <div class="row">
+        <span class="label">Дневной лимит убытков:</span>
+        <input class="input" id="risk_daily_limit" value="100" style="width:120px">
+        <span class="label">Максимум позиций:</span>
+        <input class="input" id="risk_max_positions" value="3" style="width:80px">
+      </div>
+      <div class="row">
+        <span class="label">API-ключи Binance (спот/фьючи):</span>
+        <input class="input" placeholder="Вставьте ваш ключ" style="flex:1">
+      </div>
+      <div class="row">
+        <span class="label">API-ключи Bybit (спот/фьючи):</span>
+        <input class="input" placeholder="Вставьте ваш ключ" style="flex:1">
+      </div>
+      <button class="btn">Сохранить</button>
+    </div>
+    <small>Заполните API-ключи, чтобы подключить реальные биржи. Оставьте поля пустыми для тестового режима (paper trading).</small>
+  </section>
+  <section id="help">
+    <h2>Справка</h2>
+    <div class="card">
+      <p>Этот интерфейс предназначен для управления торговым ботом NewBot. Слева сверху находится меню для навигации между разделами. Каждая панель снабжена пояснениями, чтобы упростить понимание настроек.</p>
+      <ul>
+        <li><strong>Дашборд</strong>: показывает основные показатели (капитал, PnL, Sharpe и т.д.).</li>
+        <li><strong>Радар</strong>: сканирует выбранные торговые пары на Binance и Bybit и выводит активы, где цена изменилась больше заданного порога.</li>
+        <li><strong>Сделки</strong>: отображает историю ордеров. Выберите источник (реальный исполнитель или модуль бэктеста).</li>
+        <li><strong>Позиции</strong>: показывает открытые позиции, их количество, среднюю цену и текущий PnL.</li>
+        <li><strong>Бэктест</strong>: позволяет протестировать стратегию на основе введённой последовательности доходностей.</li>
+        <li><strong>Обучение ИИ</strong>: загружает данные и обновляет параметры модели. Используйте для улучшения поведения бота.</li>
+        <li><strong>Настройки</strong>: установите параметры риска и добавьте ключи API для подключения бирж.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+<script>
+// Helper functions for GET and POST requests
+async function jget(path){
+  try {
+    const resp = await fetch(path, {headers: {"Accept": "application/json"}});
+    return await resp.json();
+  } catch(e){ console.error(e); return null; }
+}
+async function jpost(path, data){
+  try {
+    const resp = await fetch(path, {
+      method: "POST",
+      headers: {"Content-Type": "application/json", "Accept": "application/json"},
+      body: JSON.stringify(data||{})
+    });
+    return await resp.json();
+  } catch(e){ console.error(e); return null; }
+}
+
+// Update KPI values on the dashboard
+async function updateDashboard(){
+  const resp = await jget('/proxy/ai/metrics');
+  const m = resp && resp.metrics ? resp.metrics : {};
+  document.getElementById('equity_val').textContent = m.equity ?? '—';
+  document.getElementById('pnl_total_val').textContent = m.pnl_total ?? '—';
+  document.getElementById('pnl_day_val').textContent = m.pnl_day ?? '—';
+  document.getElementById('sharpe_val').textContent = m.sharpe ?? '—';
+  document.getElementById('dd_val').textContent = m.max_drawdown ?? '—';
+  document.getElementById('win_rate_val').textContent = m.win_rate ?? '—';
+  // risk meter fill: compute ratio of pnl_day vs daily loss limit if available
+  const riskBar = document.querySelector('.risk-meter .fill');
+  const limit =  Math.abs(parseFloat(document.getElementById('risk_daily_limit')?.value || '100')); 
+  if (limit > 0 && m.pnl_day != null){
+    let ratio = m.pnl_day / limit;
+    if (ratio < 0) ratio = 0;
+    if (ratio > 1) ratio = 1;
+    riskBar.style.width = (ratio * 100).toFixed(0) + '%';
+  }
+}
+
+// Radar scan
+async function loadRadar(){
+  const thr = parseFloat(document.getElementById('radar_threshold').value || '0.005');
+  const resp = await jget('/proxy/ai/scan?threshold='+thr);
+  const arr = resp && resp.results ? resp.results : [];
+  const tbody = document.getElementById('radar_results');
+  tbody.innerHTML = '';
+  if(arr.length === 0){
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--muted)">Нет сигналов</td></tr>';
+    return;
+  }
+  for(const item of arr){
+    const tr = document.createElement('tr');
+    const chPerc = item.change != null ? (item.change * 100).toFixed(2) + '%' : '';
+    tr.innerHTML = `<td>${item.symbol}</td><td>${item.price ?? ''}</td><td style="color:${item.change>0?'#16a34a':'#dc2626'}">${chPerc}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+// Load trades
+async function loadTrades(){
+  const lim = parseInt(document.getElementById('trades_limit').value || '50', 10);
+  const src = document.getElementById('trades_source').value || 'executor';
+  let url = src === 'executor' ? '/proxy/executor/trades?limit='+lim : '/proxy/backtester/trades?limit='+lim;
+  const resp = await jget(url);
+  const arr = (resp && resp.trades) ? resp.trades : [];
+  const tbody = document.getElementById('trades_table');
+  tbody.innerHTML = '';
+  if(arr.length === 0){
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted)">Нет данных</td></tr>';
+    return;
+  }
+  let idx = 1;
+  for(const t of arr){
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${idx++}</td><td>${t.ts ?? ''}</td><td>${t.symbol ?? ''}</td><td>${t.side ?? ''}</td><td>${t.qty ?? ''}</td><td>${t.price ?? ''}</td><td>${t.mode ?? ''}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+// Load positions
+async function loadPositions(){
+  const resp = await jget('/proxy/executor/positions');
+  const arr = (resp && resp.positions) ? resp.positions : [];
+  const tbody = document.getElementById('positions_table');
+  tbody.innerHTML = '';
+  if(arr.length === 0){
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted)">Нет позиций</td></tr>';
+    return;
+  }
+  for(const p of arr){
+    const current = p.current_price ?? '';
+    const pnl = p.unrealized_pnl ?? '';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${p.symbol}</td><td>${p.qty}</td><td>${p.avg_price}</td><td>${current}</td><td>${pnl}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+// Run backtest
+async function runBacktest(){
+  const retStr = document.getElementById('bt_returns').value;
+  const symbol = document.getElementById('bt_symbol').value.trim() || 'BTCUSDT';
+  const parts = retStr.split(/[,\s]+/).map(s=>parseFloat(s)).filter(x=>!isNaN(x));
+  if(parts.length === 0){
+    document.getElementById('bt_output').textContent = 'Введите хотя бы одно значение.';
+    return;
+  }
+  const body = {returns: parts, symbol: symbol};
+  const resp = await jpost('/proxy/backtester/run', body);
+  document.getElementById('bt_output').textContent = JSON.stringify(resp, null, 2);
+  // optionally reload trades
+  loadTrades();
+}
+
+// Run training
+async function runTraining(){
+  const txt = document.getElementById('train_returns').value;
+  const list = txt.split(/[,\s]+/).map(s=>parseFloat(s)).filter(x=>!isNaN(x));
+  if(list.length === 0){
+    document.getElementById('train_output').textContent = 'Введите данные для обучения.';
+    return;
+  }
+  const resp = await jpost('/proxy/ai/train', {returns: list});
+  document.getElementById('train_output').textContent = JSON.stringify(resp, null, 2);
+  // refresh dashboard metrics
+  updateDashboard();
+}
+
+// Event listeners
+document.getElementById('radar_scan').addEventListener('click', loadRadar);
+document.getElementById('trades_refresh').addEventListener('click', loadTrades);
+document.getElementById('positions_refresh').addEventListener('click', loadPositions);
+document.getElementById('bt_run').addEventListener('click', runBacktest);
+document.getElementById('train_run').addEventListener('click', runTraining);
+
+// Theme toggle: switch dark/light mode
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  const root = document.documentElement;
+  const dark = root.style.getPropertyValue('--bg') === '#f9fafb';
+  if(dark){
+    // switch to dark
+    root.style.setProperty('--bg','#0d1117');
+    root.style.setProperty('--panel','#161b22');
+    root.style.setProperty('--card','#1e2733');
+    root.style.setProperty('--text','#e2e8f0');
+    document.getElementById('theme-toggle').textContent = 'Тёмная';
+  } else {
+    // switch to light
+    root.style.setProperty('--bg','#f9fafb');
+    root.style.setProperty('--panel','#ffffff');
+    root.style.setProperty('--card','#f3f4f6');
+    root.style.setProperty('--text','#1f2937');
+    document.getElementById('theme-toggle').textContent = 'Светлая';
+  }
+});
+
+// Initial load
+updateDashboard();
+loadRadar();
+loadTrades();
+loadPositions();
+// refresh dashboard every 5 seconds
+setInterval(updateDashboard, 5000);
+</script>
+</body>
+</html>

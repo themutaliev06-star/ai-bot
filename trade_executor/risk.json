@@ -1,0 +1,12 @@
+{
+  "max_orders_per_min": 30,
+  "daily_loss_limit": 200,
+  "max_position_qty": 1,
+  "max_notional": 2000,
+  "risk": {
+    "max_orders_per_min": 30,
+    "daily_loss_limit": 200,
+    "max_position_qty": 1,
+    "max_notional": 2000
+  }
+}

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Metrics — Sidecar</title>
+  <link rel="stylesheet" href="metrics.css">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>AI Radar — Metrics</h1>
+      <div class="sub">Source: <code>http://127.0.0.1:8800/proxy/ai/metrics</code></div>
+      <div id="status" class="badge"></div>
+    </header>
+
+    <section class="grid">
+      <div class="card">
+        <div class="label">Equity</div>
+        <div id="equity" class="value">—</div>
+      </div>
+      <div class="card">
+        <div class="label">PNL (Total)</div>
+        <div id="pnl_total" class="value">—</div>
+      </div>
+      <div class="card">
+        <div class="label">PNL (Day)</div>
+        <div id="pnl_day" class="value">—</div>
+      </div>
+      <div class="card">
+        <div class="label">Sharpe</div>
+        <div id="sharpe" class="value">—</div>
+      </div>
+      <div class="card">
+        <div class="label">Win Rate</div>
+        <div id="win_rate" class="value">—</div>
+      </div>
+      <div class="card">
+        <div class="label">Trades</div>
+        <div id="trades_count" class="value">—</div>
+      </div>
+      <div class="card">
+        <div class="label">Episode</div>
+        <div id="episode" class="value">—</div>
+      </div>
+      <div class="card">
+        <div class="label">Avg Reward</div>
+        <div id="avg_reward" class="value">—</div>
+      </div>
+    </section>
+
+    <footer>
+      <div id="timestamp">—</div>
+    </footer>
+  </div>
+  <script src="metrics.js"></script>
+</body>
+</html>
