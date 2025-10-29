@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Page</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Тестовая страница</h1>
+            <p>Проверка работы статических файлов и API</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="card">
+                <div class="metric">
+                    <div class="metric-label">Total Balance</div>
+                    <div class="metric-value" id="total-balance">Loading...</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="metric">
+                    <div class="metric-label">Today PnL</div>
+                    <div class="metric-value" id="pnl-today">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Позиции</h3>
+            <div id="positions-container">
+                Loading...
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

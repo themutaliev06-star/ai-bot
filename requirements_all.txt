@@ -5,3 +5,9 @@ httpx>=0.27
 python-dotenv>=1.0
 anyio>=3.6
 pydantic>=2.6
+websockets
+python-dotenv
+jinja2
+aiohttp>=3.8.0
+pandas>=1.5.0
+numpy>=1.21.0

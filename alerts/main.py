@@ -1,19 +1,15 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from datetime import datetime
+﻿from fastapi import FastAPI
+import uvicorn
 
-app = FastAPI(title="Alerts", version="0.1.0")
+app = FastAPI()
 
-class Alert(BaseModel):
-    channel: str = "log"
-    message: str
-    level: str = "info"
+@app.get("/")
+async def root():
+    return {"message": "alerts is running", "status": "ok"}
 
 @app.get("/health")
-def health():
-    return {"ok": True, "name": "alerts", "ts": datetime.utcnow().isoformat()}
+async def health():
+    return {"status": "healthy", "service": "alerts"}
 
-@app.post("/notify")
-def notify(a: Alert):
-    print(f"[ALERT][{a.level.upper()}][{a.channel}] {a.message}")
-    return {"ok": True, "ts": datetime.utcnow().isoformat()}
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
